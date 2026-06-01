@@ -11,17 +11,24 @@ export function ClientPostsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let isMounted = true;
+    const abortController = new AbortController();
+    let ignore = false;
 
     async function loadPosts() {
       try {
-        const nextPosts = await getClientPosts();
+        const nextPosts = await getClientPosts({
+          signal: abortController.signal,
+        });
 
-        if (isMounted) {
+        if (!ignore) {
           setPosts(nextPosts);
         }
       } catch (caughtError) {
-        if (isMounted) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
+        if (!ignore) {
           setError(
             caughtError instanceof Error
               ? caughtError.message
@@ -29,16 +36,17 @@ export function ClientPostsPage() {
           );
         }
       } finally {
-        if (isMounted) {
+        if (!ignore) {
           setIsLoading(false);
         }
       }
     }
 
-    loadPosts();
+    void loadPosts();
 
     return () => {
-      isMounted = false;
+      ignore = true;
+      abortController.abort();
     };
   }, []);
 

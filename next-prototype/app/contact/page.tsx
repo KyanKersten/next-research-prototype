@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 
 type FormValues = {
   name: string;
@@ -22,6 +22,15 @@ export default function ContactPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const isMountedRef = useRef(false);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   const validate = (nextValues: FormValues): FormErrors => {
     const nextErrors: FormErrors = {};
@@ -70,7 +79,7 @@ export default function ContactPage() {
         const fieldErrors =
           data?.fieldErrors as Partial<Record<keyof FormValues, string[]>> | undefined;
 
-        if (fieldErrors) {
+        if (fieldErrors && isMountedRef.current) {
           setErrors({
             name: fieldErrors.name?.[0],
             email: fieldErrors.email?.[0],
@@ -78,16 +87,24 @@ export default function ContactPage() {
           });
         }
 
-        setSubmitError(data?.message ?? "Versturen mislukt. Probeer opnieuw.");
+        if (isMountedRef.current) {
+          setSubmitError(data?.message ?? "Versturen mislukt. Probeer opnieuw.");
+        }
         return;
       }
 
-      setValues(initialValues);
-      setSubmitSuccess(`Bericht verzonden. Referentie: ${data.id}`);
+      if (isMountedRef.current) {
+        setValues(initialValues);
+        setSubmitSuccess(`Bericht verzonden. Referentie: ${data.id}`);
+      }
     } catch {
-      setSubmitError("Er ging iets mis tijdens het versturen.");
+      if (isMountedRef.current) {
+        setSubmitError("Er ging iets mis tijdens het versturen.");
+      }
     } finally {
-      setIsLoading(false);
+      if (isMountedRef.current) {
+        setIsLoading(false);
+      }
     }
   };
 

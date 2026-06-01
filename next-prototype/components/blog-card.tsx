@@ -35,7 +35,7 @@ export function BlogCard({ post }: BlogCardProps) {
         <div className="mt-6 flex items-center justify-between gap-4 border-t border-slate-200 pt-5">
           <span className="font-medium text-slate-800">From user {post.userId}</span>
           <Link
-            href={`/posts#post-${post.id}`}
+            href={`/posts/${post.id}`}
             className="text-sm font-semibold text-[#0900ff] underline decoration-blue-200 underline-offset-4 transition hover:decoration-[#0900ff]"
           >
             Read

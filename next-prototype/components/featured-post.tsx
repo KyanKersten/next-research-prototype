@@ -24,7 +24,7 @@ export function FeaturedPost({ post }: FeaturedPostProps) {
         <p className="mt-5 text-base leading-8 text-blue-50">{post.body}</p>
         <div className="mt-8 flex flex-wrap items-center gap-5">
           <Link
-            href={`/posts#post-${post.id}`}
+            href={`/posts/${post.id}`}
             className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-[#0900ff] transition hover:bg-blue-50"
           >
             Read the essay
